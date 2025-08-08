@@ -18,4 +18,6 @@ while($i<=16){
     $i++;
 }
 $a=1;
-echo "$a matin";
+while($a<=16){
+    echo "$a main";
+}
