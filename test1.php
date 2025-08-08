@@ -17,3 +17,5 @@ while($i<=16){
     }
     $i++;
 }
+$a=1;
+echo "$a matin";
