@@ -1,0 +1,12 @@
+@import "../../node_modules/tailwindcss/dist/lib.d.mts";
+
+body{
+    direction: rtl;
+}
+@font-face {
+    font-family: 'Vazir';
+    src: url('../font/vazir/Vazir.woff2') format('woff2'),
+    url('../font/vazir/Vazir.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
