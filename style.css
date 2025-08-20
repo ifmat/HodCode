@@ -1,0 +1,23 @@
+/*
+ Theme Name: HodCode 2
+ Theme URI: https://example.com/my-custom-theme/
+ Author: Your Name
+ Author URI: https://example.com/
+ Description: A custom WordPress theme.
+ Version: 1.0
+ License: GNU General Public License v2 or later
+ License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ Tags: custom, responsive, blog
+ Text Domain: my-custom-theme
+ */
+
+
+body{
+    background-color:white;
+}
+    /*direction: rtl;*/
+
+header{
+    background: white;
+
+}
