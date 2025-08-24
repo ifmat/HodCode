@@ -1,72 +1,82 @@
-<?php get_header(); ?>
+<?php
+/**
+ * Template Single Product – Final Version with Loop
+ *
+ * @see     https://docs.woocommerce.com/document/template-structure/
+ */
 
-<main class="max-w-screen-xl mx-auto px-8 py-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <aside class="bg-white rounded-lg shadow p-4 h-fit order-2 lg:order-1">
-            <h2 class="text-lg font-semibold mb-4 pb-2">محصولات مشابه</h2>
-            <div class="flex items-center gap-3 mb-3 border-b border-gray-200 p-2">
-                <img src="<?php echo get_template_directory_uri(); ?>/assetss/images/product/airpod.jpeg" class="w-12 h-12 object-cover rounded">
-                <span class="text-sm text-gray-700">ایرپاد ایفون pro2</span>
-            </div>
-            <div class="flex items-center gap-3 mb-3 border-b border-gray-200 p-2">
-                <img src="<?php echo get_template_directory_uri(); ?>/assetss/images/product/hedphone.jpeg" alt="لپ تاپ لنوو" class="w-12 h-12 object-cover rounded">
-                <span class="text-sm text-gray-700">هدفون</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <img src="<?php echo get_template_directory_uri(); ?>/assetss/images/product/falshdisk.jpeg" alt="کنسول ps5" class="w-12 h-12 object-cover rounded">
-                <span class="text-sm text-gray-700">فلش دیسک</span>
-            </div>
-        </aside>
+defined( 'ABSPATH' ) || exit;
 
-        <section class="col-span-1 md:col-span-1 lg:col-span-3 bg-white rounded-lg shadow p-6 flex flex-col order-1 lg:order-2">
+get_header( 'shop' );
 
-            <?php if(has_post_thumbnail()): ?>
-                <?php the_post_thumbnail('large', ['class' => 'w-full sm:h-45 md:h-80 lg:h-90 object-contain rounded mb-4']); ?>
-            <?php endif; ?>
+do_action( 'woocommerce_before_main_content' );
+?>
 
-            <div class="flex items-center justify-between mb-4">
-                <h1 class="text-xl font-semibold text-gray-800"><?php the_title(); ?></h1>
-                <div class="flex items-center gap-4">
-                    <?php
-                    $price = get_post_meta(get_the_ID(), 'price', true);
-                    $old_price = get_post_meta(get_the_ID(), 'old_price', true);
-                    $discount = ($old_price && $price) ? round((($old_price - $price)/$old_price)*100) : 0;
+<?php while ( have_posts() ) : the_post(); ?>
 
-                    if($price){
-                        if($discount > 0){
-                            echo '<span class="text-white font-bold p-2 rounded-lg bg-red-600">'. $discount .'%</span>';
-                            echo '<span class="text-gray-400 line-through">'. number_format($old_price) .' تومان</span>';
-                        }
-                        echo '<span class="text-lg font-bold text-gray-800">'. number_format($price) .' تومان</span>';
-                    }
-                    ?>
-                </div>
-            </div>
+    <?php
+    global $product;
 
-            <div class="text-sm text-gray-500 leading-loose mb-4">
-                <?php the_content(); ?>
-            </div>
+    if ( ! $product instanceof WC_Product ) {
+        echo '<p>محصولی برای نمایش وجود ندارد.</p>';
+        continue;
+    }
+    ?>
 
-            <div class="mb-4 flex justify-start gap-2">
-                <a href="?add-to-cart=<?php the_ID(); ?>" class="flex items-center gap-2 bg-blue-400 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                    افزودن به سبد خرید
-                </a>
-            </div>
+    <div id="product-<?php the_ID(); ?>" <?php wc_product_class( 'container mx-auto my-10', $product ); ?>>
 
-            <?php
-            $features = get_post_meta(get_the_ID(), 'features', true);
-            if(!empty($features)){
-                $features = explode(',', $features);
-                echo '<h3 class="text-lg font-bold text-gray-800 mb-2">ویژگی ها</h3>';
-                echo '<ul class="list-disc pr-5 text-sm text-gray-500">';
-                foreach($features as $feature){
-                    echo '<li>'. esc_html(trim($feature)) .'</li>';
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <!-- گالری محصول + Sale Flash -->
+            <div class="product-gallery relative">
+                <?php
+                if ( $product->is_on_sale() ) {
+                    echo apply_filters(
+                        'woocommerce_sale_flash',
+                        '<span class="onsale bg-red-500 text-white px-2 py-1 rounded absolute top-2 left-2">' . esc_html__( 'Sale!', 'woocommerce' ) . '</span>',
+                        get_post(),
+                        $product
+                    );
                 }
-                echo '</ul>';
-            }
-            ?>
-        </section>
-    </div>
-</main>
 
-<?php get_footer(); ?>
+                do_action( 'woocommerce_before_single_product_summary' );
+                ?>
+            </div>
+
+            <!-- جزئیات محصول -->
+            <div class="product-summary p-6 bg-white rounded-2xl shadow">
+                <h1 class="text-3xl font-bold mb-4"><?php the_title(); ?></h1>
+
+                <!-- قیمت و درصد تخفیف -->
+                <div class="mb-4 flex items-center gap-4">
+                    <div class="text-xl text-red-500">
+                        <?php woocommerce_template_single_price(); ?>
+                    </div>
+                    <?php
+                    $regular_price = (float) $product->get_regular_price();
+                    $sale_price    = (float) $product->get_sale_price();
+                    if ( $product->is_on_sale() && $regular_price > 0 ) :
+                        $off_percent = round( 100 * ( ( $regular_price - $sale_price ) / $regular_price ) );
+                        ?>
+                        <span class="bg-red-500 text-white px-2 py-1 rounded text-sm">-<?php echo $off_percent; ?>%</span>
+                    <?php endif; ?>
+                </div>
+
+                <div class="mb-6"><?php woocommerce_template_single_excerpt(); ?></div>
+
+                <div class="mb-6"><?php woocommerce_template_single_add_to_cart(); ?></div>
+
+                <div class="text-sm text-gray-500"><?php woocommerce_template_single_meta(); ?></div>
+            </div>
+        </div>
+
+  
+
+    </div>
+
+<?php endwhile; ?>
+
+<?php
+do_action( 'woocommerce_after_main_content' );
+get_footer( 'shop' );
+?>
